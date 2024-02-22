@@ -122,8 +122,8 @@ while ret:
     frame = cv2.line(frame, start_point, end_point, (0,155,0), 3)
     cap_out.write(frame)
     # cv2.imshow('image',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
     
     ret, frame = cap.read()
 
