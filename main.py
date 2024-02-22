@@ -34,10 +34,8 @@ start_point = (93,169)
 end_point = (795,533)
 
 
-video_path = os.path.join('.', 'data', 'people.mp4')
+video_path = os.path.join('.', 'data', 'video1.mp4')
 video_out_path = os.path.join('.', 'cloth_counting.mp4')
-
-video_path = 'data/video1.mp4'
 
 cap = cv2.VideoCapture(video_path)
 ret, frame = cap.read()
