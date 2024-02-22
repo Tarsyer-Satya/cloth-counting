@@ -7,6 +7,23 @@ from ultralytics import YOLO
 from tracker import Tracker
 from collections import defaultdict
 import time
+from shapely.geometry import Point, Polygon
+
+def point_inside_polygon(point, polygon):
+    """
+    Check if a point is inside a polygon.
+
+    Args:
+        point (tuple): Tuple containing the coordinates of the point (x, y).
+        polygon (list of tuples): List of tuples containing the coordinates of the polygon vertices.
+
+    Returns:
+        bool: True if the point is inside the polygon, False otherwise.
+    """
+    point = Point(point)
+    polygon = Polygon(polygon)
+    return polygon.contains(point)
+
 
 
 
@@ -34,7 +51,10 @@ start_point = (93,169)
 end_point = (795,533)
 
 
-video_path = os.path.join('.', 'data', 'video1.mp4')
+poly = [(57,183),(278,350),(631,223),(370, 129)]
+
+
+video_path = os.path.join('.', 'data', 'output_video1.mp4')
 video_out_path = os.path.join('.', 'cloth_counting.mp4')
 
 cap = cv2.VideoCapture(video_path)
@@ -61,7 +81,7 @@ start_time = time.time()
 
 while ret:
 
-    results = model.predict(frame, conf= 0.003,iou = 0.3)
+    results = model.predict(frame, conf= 0.003,iou = 0.15)
     count += 1
 
     for result in results:
@@ -91,7 +111,8 @@ while ret:
             
 
             track_dict[track_id] = find_point(start_point, end_point, centroid[0], centroid[1])
-            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (colors[track_id % len(colors)]), 3)
+            if(point_inside_polygon(centroid, poly)):
+                cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255,0,0), 3)
 
         cv2.putText(frame, f"cloth count: {cloth_count}", (50,50), cv2.FONT_HERSHEY_SIMPLEX , 1, (255,0,0), 3)
         # cv2.putText(frame, f"vehicles_left: {cars_left}", (50,100), cv2.FONT_HERSHEY_SIMPLEX , 1, (255,0,0), 3)
@@ -100,9 +121,9 @@ while ret:
 
     frame = cv2.line(frame, start_point, end_point, (0,155,0), 3)
     cap_out.write(frame)
-    # cv2.imshow('image',frame)
-    # if cv2.waitKey(1) & 0xFF == ord('q'):
-    #     break
+    cv2.imshow('image',frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
     
     ret, frame = cap.read()
 
